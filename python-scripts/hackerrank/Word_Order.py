@@ -1,9 +1,12 @@
+import collections
+
+
 def main():
     n = int(input())
-    words = {}
+    words = collections.defaultdict(int)
     for i in range(n):
         word = input()
-        words[word] = words.get(word, 0) + 1
+        words[word] += 1
     print(len(words))
     print(" ".join(map(str, words.values())))
 

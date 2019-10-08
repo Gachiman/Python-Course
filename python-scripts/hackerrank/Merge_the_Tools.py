@@ -3,13 +3,7 @@ def merge_the_tools(string, k):
         return
     parts = [string[i:i+k] for i in range(0, len(string), k)]
     for i in range(len(parts)):
-        final_part = []
-        for item in parts[i]:
-            if item not in final_part:
-                final_part.append(item)
-        parts[i] = "".join(final_part)
-    for item in parts:
-        print(item)
+        print("".join(dict.fromkeys(parts[i])))
 
 
 if __name__ == '__main__':
