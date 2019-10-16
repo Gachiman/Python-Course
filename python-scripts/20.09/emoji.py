@@ -15,5 +15,4 @@ with open("emoji_text.txt", "r", encoding='utf-8-sig') as infile,\
         print(lol)
         outfile.write(lol)'''
     for line in infile:
-        outfile.write(re.sub(r'[-}:)(|O_o\\*/=]{3,5}', old_smile[re.search(r'[-}:)(|O_o\\*/=]{3,5}',
-                                                                           line).group()], line))
+        outfile.write(re.sub(r'[-}:)(|O_o\\*/=]{3,5}', lambda x: old_smile[x.group()], line))
