@@ -1,0 +1,50 @@
+[
+    {
+        "model": "Vesta седан",
+        "cheap": {
+            "title": "1.6 л 16-кл. (106 л.с.), 5МТ / Standard",
+            "price": "566900"
+        },
+        "expensive": {
+            "title": "1.8 л 16-кл. (122 л.с.), 5АМТ / Exclusive",
+            "price": "841400"
+        },
+        "price_list": "http://www.lada.ru/cars/vesta/sedan/print_prices.pdf"
+    },
+    {
+        "model": "XRAY Cross",
+        "cheap": {
+            "title": "1.8 л 16-кл. (122 л.с.), 5МТ / Classic",
+            "price": "679900"
+        },
+        "expensive": {
+            "title": "1.6 л 16-кл. (113 л.с.), АТ / Luxe / Prestige",
+            "price": "931900"
+        },
+        "price_list": "http://www.lada.ru/cars/xray/cross/print_prices.pdf"
+    },
+    {
+        "model": "Largus универсал",
+        "cheap": {
+            "title": "1.6 л 8-кл. (87 л.с.), 5МТ / Standard / 5 мест",
+            "price": "557900"
+        },
+        "expensive": {
+            "title": "1.6 л 16-кл. (106 л.с.), 5МТ / #CLUB / 7 мест",
+            "price": "730900"
+        },
+        "price_list": "http://www.lada.ru/cars/largus/universal/print_prices.pdf"
+    },
+    {
+        "model": "Granta седан",
+        "cheap": {
+            "title": "1.6 л 8-кл. (87 л.с.), 5МТ / Standard",
+            "price": "404900"
+        },
+        "expensive": {
+            "title": "1.6 л 16-кл. (98 л.с.), 4АТ / #CLUB",
+            "price": "613900"
+        },
+        "price_list": "http://www.lada.ru/cars/granta/sedan/print_prices.pdf"
+    }
+]
