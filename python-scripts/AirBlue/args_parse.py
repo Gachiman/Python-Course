@@ -25,7 +25,7 @@ def valid_arrive_city(city_arrive):
 def valid_date(date_):
     date_ = datetime.datetime.strptime(date_, '%d.%m.%Y')
     try:
-        if date_ < datetime.datetime.today():
+        if date_ < datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0):
             raise RuntimeError
     except RuntimeError:
         date_ = valid_date(input("Please select today or a future date for travel: "))
@@ -42,8 +42,12 @@ def create_arg_parser():
     try:
         if our_args.return_date and (our_args.departure_date > our_args.return_date):
             raise RuntimeError()
+        if our_args.from_city == our_args.to_city:
+            raise IncorrectCity()   # Check this later
     except RuntimeError:
         sys.exit("You can't return on an earlier date than you leave")  # How I can repeat command line params input?
+    except IncorrectCity:
+        sys.exit("You already in this city!")
     return our_args
 
 
