@@ -2,11 +2,23 @@ import datetime
 import itertools
 
 
-def display(info):
-    duration = (datetime.datetime.strptime(info.Arrive, "%I:%M %p")
-                - datetime.datetime.strptime(info.Depart, "%I:%M %p")).total_seconds()
-    duration = "{}:{}".format(int(duration // 3600), int((duration % 3600) // 60))
+def calculate_duration(arrive_time, depart_time):
+    """
+    Calculate flight duration.
+    :param arrive_time: (str) - arrive time in format DD.MM.YYYY.
+    :param depart_time: (str) - departure time in format DD.MM.YYYY.
+    :return: (str) - duration.
+    """
+    arrive_time = datetime.datetime.strptime(arrive_time, "%I:%M %p")
+    depart_time = datetime.datetime.strptime(depart_time, "%I:%M %p")
+    duration = (arrive_time - depart_time).total_seconds()
+    hours = int(duration // 3600)
+    minutes = int((duration % 3600) // 60)
+    return "{}:{}".format(hours, minutes)
 
+
+def display(info):
+    duration = calculate_duration(info.Arrive, info.Depart)
     print("{}:\t Depart: {}\t Arrive: {}\t Duration: {}".format(info.Flight, info.Depart, info.Arrive,
                                                                 duration))
     for cost in info.Price:
