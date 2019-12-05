@@ -28,54 +28,58 @@ def url_params(args_):
     return args
 
 
+def fill_database(flights_to, cabin_classes):
+    """
+    Takes data from airblue.com and saving them in database.
+    :param flights_to: Flights base.
+    :param cabin_classes: Economy / Standard (1 Bag).
+    :return: Database with fields: Flight, Depart, Arrive, Price (Cabin_class, Currency, Cost).
+    """
+    flights = collections.namedtuple('Flights', "Flight Depart Arrive Price")
+    money_things = collections.namedtuple("money_things", "Cabin_class Currency Cost")
+
+    base = []
+    for item in flights_to:
+        base.append(flights(
+            item.xpath('td[1]/text()')[0].rstrip(),  # Flight
+            item.xpath('td[2]/text()')[0],  # Depart
+            item.xpath('td[4]/text()')[0],  # Arrive
+            []  # Price
+        ))
+
+        curs = (item.xpath('td[@rowspan]/label/span/b/text()'))
+        costs = iter(item.xpath('td[@rowspan]/label/span/text()'))
+        for currency in curs:
+            base[-1].Price.append(money_things(
+                next(cabin_classes),
+                currency,
+                next(costs)
+            ))
+
+    return base
+
+
 def main():
     args = url_params(args_parse.create_arg_parser())
-    Flights = collections.namedtuple('Flights', "Flight Depart Arrive Price")
     base_url = "https://www.airblue.com/bookings/flight_selection.aspx"
     response = requests.get(base_url, params=args)
     doc = lxml.html.fromstring(response.content)
 
     # Working with first flight.
     dummy_str = '//table[@id="trip_1_date_' + "{}_{}_{}".format(args['AM'][:4], args['AM'][5:], args['AD']) + '"]'
-    flights_from = doc.xpath('{}/tbody/tr[1]'.format(dummy_str))
-    print(flights_from)
-    cabin_classes = doc.xpath('{}/thead/tr[2]/th/span/text()'.format(dummy_str))
-    base1 = []
-    for item in flights_from:
-        base1.append(Flights(
-            item.xpath('td[1]/text()')[0].rstrip(),
-            item.xpath('td[2]/text()')[0],
-            item.xpath('td[4]/text()')[0],
-            []
-        ))
-        curs = item.xpath('td[@rowspan]/label/span/b/text()')
-        costs = item.xpath('td[@rowspan]/label/span/text()')
-        i = 0
-        for currency in curs:
-            base1[-1].Price.append({cabin_classes[i]: {currency: costs[i]}})
-            i += 1
+    flights_from = (doc.xpath('{}/tbody/tr[1]'.format(dummy_str)))
+    cabin_classes = iter(doc.xpath('{}/thead/tr[2]/th/span/text()'.format(dummy_str)))
+    base1 = fill_database(flights_from, cabin_classes)
 
     if args['TT'] == 'OW':
         flights_print.one_way_print(base1)
     else:
         # Working with second flight.
         dummy_str = '//table[@id="trip_2_date_' + "{}_{}_{}".format(args['RM'][:4], args['RM'][5:], args['RD']) + '"]'
-        flights_back = doc.xpath('{}/tbody/tr[1]'.format(dummy_str))
-        cabin_classes = doc.xpath('{}/thead/tr[2]/th/span/text()'.format(dummy_str))
-        base2 = []
-        for item in flights_back:
-            base2.append(Flights(
-                item.xpath('td[1]/text()')[0].rstrip(),
-                item.xpath('td[2]/text()')[0],
-                item.xpath('td[4]/text()')[0],
-                []
-            ))
-            curs = item.xpath('td[@rowspan]/label/span/b/text()')
-            costs = item.xpath('td[@rowspan]/label/span/text()')
-            i = 0
-            for currency in curs:
-                base2[-1].Price.append({cabin_classes[i]: {currency: costs[i]}})
-                i += 1
+        flights_back = (doc.xpath('{}/tbody/tr[1]'.format(dummy_str)))
+        cabin_classes = iter(doc.xpath('{}/thead/tr[2]/th/span/text()'.format(dummy_str)))
+        base2 = fill_database(flights_back, cabin_classes)
+
         flights_print.round_trip_print(base1, base2)
 
 
