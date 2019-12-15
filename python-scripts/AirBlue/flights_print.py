@@ -1,20 +1,4 @@
-import datetime
 import itertools
-
-
-def calculate_duration(arrive_time, depart_time):
-    """
-    Calculate flight duration.
-    :param arrive_time: (str) - arrive time in format DD.MM.YYYY.
-    :param depart_time: (str) - departure time in format DD.MM.YYYY.
-    :return: (str) - duration.
-    """
-    arrive_time = datetime.datetime.strptime(arrive_time, "%I:%M %p")
-    depart_time = datetime.datetime.strptime(depart_time, "%I:%M %p")
-    duration = (arrive_time - depart_time).total_seconds()
-    hours = int(duration // 3600)
-    minutes = int((duration % 3600) // 60)
-    return "{}:{}".format(hours, minutes)
 
 
 def display(info):
@@ -22,10 +6,8 @@ def display(info):
     Displays information about a particular flight.
     :param info: (namedtuple) - collection object with information about our flight.
     """
-    duration = calculate_duration(info.arrive, info.depart)
-    print("{}:\t Depart: {}\t Arrive: {}\t Duration: {}".format(info.flight, info.depart, info.arrive, duration))
-    for cost in info.price:
-        print("Tariff: {}\tCurrency: {}\tCost: {}".format(cost.fare_family, cost.currency, cost.cost))
+    print("- {} {} {} - {} {} ({}) {} {} {}".format(info.flight, info.date, info.depart, info.date, info.arrive,
+                                                    info.duration, info.fare_family, info.price, info.currency))
     print()
 
 
@@ -46,16 +28,8 @@ def round_trip_print(flights_1, flights_2):
     :param flights_2: list with our second flights.
     """
     combinations = tuple(itertools.product(flights_1, flights_2))
-    costs = {}
-    i = 0
+    combinations = sorted(combinations, key=lambda x: x[0].price + x[1].price)
     for item in combinations:
-        cost1 = float(item[0].price[-1].cost.replace(",", "."))
-        cost2 = float(item[1].price[-1].cost.replace(",", "."))
-        costs[i] = cost1 + cost2
-        i += 1
-    costs = list(costs.items())
-    costs.sort(key=lambda x: x[1])
-    for item in costs:
-        display(combinations[item[0]][0])
-        display(combinations[item[0]][1])
-        print("\nTOTAL COST: {}  {}\n\n\n".format(item[1], combinations[item[0]][0].price[-1].currency))
+        display(item[0])
+        display(item[1])
+        print("TOTAL COST: {}  {}\n\n\n".format(item[0].price + item[1].price, item[0].currency))

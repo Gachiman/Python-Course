@@ -2,13 +2,14 @@ import requests
 import lxml.html
 import collections
 import sys
+import datetime
+from decimal import Decimal
 
 import args_parse
 import flights_print
 
 
-Flight = collections.namedtuple("Flight", "flight depart arrive price")
-Money_things = collections.namedtuple("Money_things", "fare_family currency cost")
+Flight = collections.namedtuple("Flight", "flight date depart arrive duration fare_family currency price")
 
 
 def url_params(args_):
@@ -34,32 +35,56 @@ def url_params(args_):
     return args
 
 
-def fill_database(doc, dummy_str):
+def calculate_duration(arrive_time, depart_time):
+    """
+    Calculate flight duration.
+    :param arrive_time: (str) - arrive time in format YYYY-MM-DD.
+    :param depart_time: (str) - departure time in format YYYY-MM-DD.
+    :return: (str) - duration.
+    """
+    arrive_time = datetime.datetime.strptime(arrive_time, "%I:%M %p")
+    depart_time = datetime.datetime.strptime(depart_time, "%I:%M %p")
+    duration = (arrive_time - depart_time).total_seconds()
+    hours = int(duration // 3600)
+    minutes = int((duration % 3600) // 60)
+    return "{}h {}m".format(hours, minutes)
+
+
+def fill_database(args, doc, way):
     """
     Takes data from airblue.com and saving them in database.
     :param doc: html document.
-    :param dummy_str: dummy string to select flights.
+    :param way: dummy string to select flights.
+    :param args: flight select arguments.
     :return: Database with fields: Flight, Depart, Arrive, Price (Fare_family, Currency, Cost).
     """
-    flights_to = (doc.xpath('{}/tbody/tr'.format(dummy_str)))
+    flights_to = (doc.xpath('//div[@id="trip_{}"]/table/tbody/tr'.format(way)))
+    if way == 1:
+        from_to_info = "{}-{}".format(args["DC"], args["AC"])
+        date = "{}-{}".format(args["AM"], args["AD"])
+    else:
+        from_to_info = "{}-{}".format(args["AC"], args["DC"])
+        date = "{}-{}".format(args["RM"], args["RD"])
 
     flights = []
     for item in flights_to:
-        flights.append(Flight(
-            item.xpath('./td[1]/text()')[0].rstrip(),  # flight
-            item.xpath('./td[2]/text()')[0],  # depart
-            item.xpath('./td[4]/text()')[0],  # arrive
-            []  # price
-        ))
-
-        fare_family = iter(doc.xpath('{}/thead/tr[2]/th/span/text()'.format(dummy_str)))
         curs = (item.xpath('./td[@rowspan]/label/span/b/text()'))
+        fare_family = iter(doc.xpath('//div[@id="trip_{}"]/table/thead/tr[2]/th/span/text()'.format(way)))
         costs = iter(item.xpath('./td[@rowspan]/label/span/text()'))
+        depart_time = item.xpath('./td[2]/text()')[0]
+        arrive_time = item.xpath('./td[4]/text()')[0]
+        duration = calculate_duration(arrive_time, depart_time)
+
         for currency in curs:
-            flights[-1].price.append(Money_things(
+            flights.append(Flight(
+                "{}:{}".format(from_to_info, item.xpath('./td[1]/text()')[0].rstrip()),  # flight
+                date,
+                depart_time,
+                arrive_time,
+                duration,
                 next(fare_family),
                 currency,
-                next(costs)
+                Decimal(next(costs).replace(',', '.'))
             ))
 
     return flights
@@ -77,16 +102,12 @@ def main():
     doc = lxml.html.fromstring(response.content)
 
     # Working with first flight.
-    dummy_str = '//table[@id="trip_1_date_{}_{}_{}"]'.format(args["AM"][:4], args["AM"][5:], args["AD"])
-    flights_1 = fill_database(doc, dummy_str)
-
+    flights_1 = fill_database(args, doc, "1")
     if args["TT"] == "OW":
         flights_print.one_way_print(flights_1)
     else:
         # Working with second flight.
-        dummy_str = '//table[@id="trip_2_date_{}_{}_{}"]'.format(args["RM"][:4], args["RM"][5:], args["RD"])
-        flights_2 = fill_database(doc, dummy_str)
-
+        flights_2 = fill_database(args, doc, "2")
         flights_print.round_trip_print(flights_1, flights_2)
 
 
