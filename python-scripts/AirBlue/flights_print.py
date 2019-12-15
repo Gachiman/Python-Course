@@ -22,35 +22,35 @@ def display(info):
     Displays information about a particular flight.
     :param info: (namedtuple) - collection object with information about our flight.
     """
-    duration = calculate_duration(info.Arrive, info.Depart)
-    print("{}:\t Depart: {}\t Arrive: {}\t Duration: {}".format(info.Flight, info.Depart, info.Arrive, duration))
-    for cost in info.Price:
-        print("Tariff: {}\tCurrency: {}\tCost: {}".format(cost.Cabin_class, cost.Currency, cost.Cost))
+    duration = calculate_duration(info.arrive, info.depart)
+    print("{}:\t Depart: {}\t Arrive: {}\t Duration: {}".format(info.flight, info.depart, info.arrive, duration))
+    for cost in info.price:
+        print("Tariff: {}\tCurrency: {}\tCost: {}".format(cost.fare_family, cost.currency, cost.cost))
     print()
 
 
-def one_way_print(base1):
+def one_way_print(flights_1):
     """
     If we are going one way.
-    :param base1: list with our one-way flights.
+    :param flights_1: list with our one-way flights.
     """
-    for flight in base1:
+    for flight in flights_1:
         display(flight)
         print()
 
 
-def round_trip_print(base1, base2):
+def round_trip_print(flights_1, flights_2):
     """
     If we are going round trip.
-    :param base1: list with our first flights.
-    :param base2: list with our second flights.
+    :param flights_1: list with our first flights.
+    :param flights_2: list with our second flights.
     """
-    combinations = tuple(itertools.product(base1, base2))
+    combinations = tuple(itertools.product(flights_1, flights_2))
     costs = {}
     i = 0
     for item in combinations:
-        cost1 = float(item[0].Price[-1].Cost.replace(',', '.'))
-        cost2 = float(item[1].Price[-1].Cost.replace(',', '.'))
+        cost1 = float(item[0].price[-1].cost.replace(",", "."))
+        cost2 = float(item[1].price[-1].cost.replace(",", "."))
         costs[i] = cost1 + cost2
         i += 1
     costs = list(costs.items())
@@ -58,4 +58,4 @@ def round_trip_print(base1, base2):
     for item in costs:
         display(combinations[item[0]][0])
         display(combinations[item[0]][1])
-        print("\nTOTAL COST: {}  {}\n\n\n".format(item[1], combinations[item[0]][0].Price[-1].Currency))
+        print("\nTOTAL COST: {}  {}\n\n\n".format(item[1], combinations[item[0]][0].price[-1].currency))
