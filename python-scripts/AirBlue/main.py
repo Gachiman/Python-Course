@@ -9,7 +9,7 @@ import args_parse
 import flights_print
 
 
-Flight = collections.namedtuple('Flight', 'flight date depart arrive duration fare_family currency price')
+Flight = collections.namedtuple('Flight', 'flight departure_date arrival_date duration fare_family currency price')
 
 
 def url_params(args_):
@@ -54,7 +54,7 @@ def parse_flights(args, doc, way):
     :param doc: html document.
     :param way: dummy string to select flights.
     :param args: flight select arguments.
-    :return: Database with fields: Flight, Depart, Arrive, Price (Fare_family, Currency, Cost).
+    :return: Database with fields: flight departure_date arrival_date duration fare_family currency price.
     """
     flights_to = (doc.xpath('.//div[@id="trip_{}"]/table[contains(@class, "requested-date")]/tbody/tr'.format(way)))
     if way == '1':
@@ -87,9 +87,8 @@ def parse_flights(args, doc, way):
         for currency in curs:
             flights.append(Flight(
                 '{}:{}'.format(from_to_info, item.xpath('./td[1]/text()')[0].rstrip()),  # flight
-                date,
-                depart_time,
-                arrive_time,
+                departure_date.strftime('%Y-%m-%d %I:%M %p'),
+                arrival_date.strftime('%Y-%m-%d %I:%M %p'),
                 duration,
                 next(fare_family),
                 currency,
@@ -110,15 +109,14 @@ def main():
         sys.exit()
     doc = lxml.html.fromstring(response.content)
 
-    # Working with first flight.
-    flights_1 = parse_flights(args, doc, '1')
+    # Working with outbound flight.
+    out_flights = parse_flights(args, doc, '1')
     if args['TT'] == 'OW':
-        flights_print.print_flight(flights_1)
+        flights_print.print_flight(out_flights)
     else:
-        # Working with second flight.
-        flights_2 = parse_flights(args, doc, '2')
-        # flights_print.round_trip_print(flights_1, flights_2)
-        flights_print.print_flight(flights_1, flights_2)
+        # Working with inbound flight.
+        inb_flights = parse_flights(args, doc, '2')
+        flights_print.print_flight(out_flights, inb_flights)
 
 
 if __name__ == '__main__':

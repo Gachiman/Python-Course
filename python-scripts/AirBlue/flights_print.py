@@ -8,7 +8,7 @@ def get_flight_string(info):
     """
     return (
         '- {flight}'
-        ' {date} {depart} - {date} {arrive} '
+        ' {departure_date} - {arrival_date} '
         '({duration}) '
         '{fare_family}'.format(**info._asdict())
     )

@@ -46,7 +46,7 @@ def create_table(con):
                    'id INTEGER PRIMARY KEY NOT NULL,'
                    'from_city TEXT NOT NULL, to_city TEXT NOT NULL)')
 
-    if not cursor.execute('SELECT * FROM IATA WHERE id=1').fetchall():
+    if not cursor.execute('SELECT * FROM IATA WHERE id=1').fetchone():
         cursor.executemany('INSERT INTO IATA(from_city, to_city) VALUES (?,?)', get_city_codes())
     con.commit()
 
@@ -56,12 +56,12 @@ def get_from_base(from_city, to_city):
     Get combinations from our database.
     :return: all possible routes.
     """
+    create_table(sql_connection())
     cursor = sql_connection().cursor()
     return cursor.execute('SELECT from_city, to_city FROM IATA WHERE from_city=\'{}\' AND to_city=\'{}\''.format(
         from_city, to_city
-    )).fetchall()
+    )).fetchone()
 
 
 if __name__ == '__main__':
     create_table(sql_connection())
-    # print(get_from_base())
