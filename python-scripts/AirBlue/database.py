@@ -11,13 +11,13 @@ def get_city_codes():
     :return: all possible routes.
     """
     try:
-        response = requests.get("https://www.airblue.com/")
+        response = requests.get('https://www.airblue.com/')
     except requests.ConnectionError as e:
         print(e)
         sys.exit()
     doc = lxml.html.fromstring(response.content)
-    from_city = doc.xpath('//select[@name="DC"]/option[position()>1]/@value')
-    to_city = doc.xpath('//select[@name="AC"]/option[position()>1]/@value')
+    from_city = doc.xpath('.//select[@name="DC"]/option[position()>1]/@value')
+    to_city = doc.xpath('.//select[@name="AC"]/option[position()>1]/@value')
     combinations = itertools.product(from_city, to_city)
     combinations = [item for item in combinations if item[0] != item[1]]
     return combinations
@@ -29,7 +29,7 @@ def sql_connection():
     :return: connect object.
     """
     try:
-        con = sqlite3.connect("AirBlue_base.db")
+        con = sqlite3.connect('AirBlue_base.db')
         return con
     except sqlite3.Error as e:
         print(e)
@@ -42,24 +42,26 @@ def create_table(con):
     :param con: connection object.
     """
     cursor = con.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS IATA("
-                   "id INTEGER PRIMARY KEY NOT NULL,"
-                   "from_city TEXT NOT NULL, to_city TEXT NOT NULL)")
+    cursor.execute('CREATE TABLE IF NOT EXISTS IATA('
+                   'id INTEGER PRIMARY KEY NOT NULL,'
+                   'from_city TEXT NOT NULL, to_city TEXT NOT NULL)')
 
-    if not cursor.execute("SELECT * FROM IATA WHERE id=1").fetchall():
-        cursor.executemany("INSERT INTO IATA(from_city, to_city) VALUES (?,?)", get_city_codes())
+    if not cursor.execute('SELECT * FROM IATA WHERE id=1').fetchall():
+        cursor.executemany('INSERT INTO IATA(from_city, to_city) VALUES (?,?)', get_city_codes())
     con.commit()
 
 
-def get_from_base():
+def get_from_base(from_city, to_city):
     """
     Get combinations from our database.
     :return: all possible routes.
     """
     cursor = sql_connection().cursor()
-    return cursor.execute("SELECT from_city, to_city FROM IATA").fetchall()
+    return cursor.execute('SELECT from_city, to_city FROM IATA WHERE from_city=\'{}\' AND to_city=\'{}\''.format(
+        from_city, to_city
+    )).fetchall()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     create_table(sql_connection())
-    print(get_from_base())
+    # print(get_from_base())

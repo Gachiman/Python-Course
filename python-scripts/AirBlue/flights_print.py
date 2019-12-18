@@ -1,35 +1,31 @@
 import itertools
 
 
-def display(info):
+def get_flight_string(info):
     """
-    Displays information about a particular flight.
+    Forming information string about a particular flight.
     :param info: (namedtuple) - collection object with information about our flight.
     """
-    print("- {} {} {} - {} {} ({}) {} {} {}".format(info.flight, info.date, info.depart, info.date, info.arrive,
-                                                    info.duration, info.fare_family, info.price, info.currency))
-    print()
+    return (
+        '- {flight}'
+        ' {date} {depart} - {date} {arrive} '
+        '({duration}) '
+        '{fare_family}'.format(**info._asdict())
+    )
 
 
-def one_way_print(flights_1):
-    """
-    If we are going one way.
-    :param flights_1: list with our one-way flights.
-    """
-    for flight in flights_1:
-        display(flight)
-        print()
+def print_flight(*flights):
+    combinations = itertools.product(*flights)
+    combinations = sorted(combinations, key=lambda item: sum(i.price for i in item))
 
+    if not combinations:
+        print('No flights found')
 
-def round_trip_print(flights_1, flights_2):
-    """
-    If we are going round trip.
-    :param flights_1: list with our first flights.
-    :param flights_2: list with our second flights.
-    """
-    combinations = tuple(itertools.product(flights_1, flights_2))
-    combinations = sorted(combinations, key=lambda x: x[0].price + x[1].price)
-    for item in combinations:
-        display(item[0])
-        display(item[1])
-        print("TOTAL COST: {}  {}\n\n\n".format(item[0].price + item[1].price, item[0].currency))
+    for flight in combinations:
+        print('\n'.join(get_flight_string(item) for item in flight))
+        print(
+            'TOTAL PRICE: {} {}\n'.format(
+                sum(item.price for item in flight),
+                flight[0].currency
+            )
+        )
