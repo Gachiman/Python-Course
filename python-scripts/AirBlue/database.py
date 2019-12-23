@@ -56,7 +56,6 @@ def get_from_base(from_city, to_city):
     Get combinations from our database.
     :return: all possible routes.
     """
-    create_table(sql_connection())
     cursor = sql_connection().cursor()
     return cursor.execute('SELECT from_city, to_city FROM IATA WHERE from_city=\'{}\' AND to_city=\'{}\''.format(
         from_city, to_city

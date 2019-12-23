@@ -7,6 +7,7 @@ from decimal import Decimal
 
 import args_parse
 import flights_print
+import database
 
 
 Flight = collections.namedtuple('Flight', 'flight departure_date arrival_date duration fare_family currency price')
@@ -120,4 +121,5 @@ def main():
 
 
 if __name__ == '__main__':
+    database.create_table(database.sql_connection())
     main()

@@ -1,7 +1,8 @@
 import sys
 import argparse
 import re
-from datetime import date
+import datetime
+from dateutil.relativedelta import relativedelta
 
 import database
 
@@ -20,12 +21,16 @@ def valid_city_code(code):
 def valid_date(input_date):
     """
     Check data on correctly input.
-    :param input_date: (str) - data in format YYYY-MM-DD.
+    :param input_date: (str) - data in format YYYY-MM-DD or  DD-MM-YYYY.
     :return: (datetime) - valid datetime object.
     """
-    input_date = date.fromisoformat(input_date)
-    if input_date < date.today():
+    if re.search(r'\b\d{2}-\d{2}-\d{4}', input_date):
+        input_date = input_date[6:] + input_date[2:6] + input_date[:2]
+    input_date = datetime.date.fromisoformat(input_date)
+    if input_date < datetime.date.today():
         raise argparse.ArgumentError(None, 'Please select today or a future date for travel.')
+    if input_date > datetime.date.today() + relativedelta(years=1):
+        raise argparse.ArgumentError(None, 'Please, live in the present (date too in the future).')
     return input_date
 
 
@@ -34,15 +39,14 @@ def create_arg_parser():
     Takes command line arguments using argparse.
     :return: argparse.Namespace - parsed arguments of valid type.
     """
-    def raise_value_error(err_msg):
-        raise argparse.ArgumentError(None, err_msg)
     arg_parser = argparse.ArgumentParser()
-    arg_parser.error = raise_value_error
 
-    arg_parser.add_argument('from_city', type=valid_city_code)
-    arg_parser.add_argument('to_city', type=valid_city_code)
-    arg_parser.add_argument('departure_date', type=valid_date)
-    arg_parser.add_argument('return_date', nargs="?", type=valid_date)
+    arg_parser.add_argument('from_city', type=valid_city_code, help='Origin city code: 3 capital letters (e.g. ISB)')
+    arg_parser.add_argument('to_city', type=valid_city_code, help='Origin city code: 3 capital letters (e.g. ISB)')
+    arg_parser.add_argument('departure_date', type=valid_date, help='Departure date: YYYY-MM-DD'
+                                                                    ' or DD-MM-YYYY (without dropping zeros)')
+    arg_parser.add_argument('return_date', nargs="?", type=valid_date, help='Departure date: YYYY-MM-DD'
+                                                                            ' or DD-MM-YYYY(without dropping zeros)')
 
     try:
         our_args = arg_parser.parse_args()
