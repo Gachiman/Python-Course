@@ -48,6 +48,10 @@ def create_arg_parser():
     arg_parser.add_argument('return_date', nargs="?", type=valid_date, help='Departure date: YYYY-MM-DD'
                                                                             ' or DD-MM-YYYY(without dropping zeros)')
 
+    if len(sys.argv) == 1:
+        arg_parser.print_help(sys.stderr)
+        sys.exit()
+
     try:
         our_args = arg_parser.parse_args()
         if our_args.return_date and (our_args.departure_date > our_args.return_date):
