@@ -24,13 +24,11 @@ def valid_date(input_date):
     :param input_date: (str) - data in format YYYY-MM-DD or  DD-MM-YYYY.
     :return: (datetime) - valid datetime object.
     """
-    if re.search(r'\b\d{2}-\d{2}-\d{4}', input_date):
-        input_date = input_date[6:] + input_date[2:6] + input_date[:2]
     input_date = datetime.date.fromisoformat(input_date)
     if input_date < datetime.date.today():
         raise argparse.ArgumentError(None, 'Please select today or a future date for travel.')
     if input_date > datetime.date.today() + relativedelta(years=1):
-        raise argparse.ArgumentError(None, 'Please, live in the present (date too in the future).')
+        raise argparse.ArgumentError(None, 'Please, live in the present (date can only be found a year in advance).')
     return input_date
 
 
@@ -48,6 +46,7 @@ def create_arg_parser():
     arg_parser.add_argument('return_date', nargs="?", type=valid_date, help='Departure date: YYYY-MM-DD'
                                                                             ' or DD-MM-YYYY(without dropping zeros)')
 
+    # Shows the required arguments if they are not present.
     if len(sys.argv) == 1:
         arg_parser.print_help(sys.stderr)
         sys.exit()
