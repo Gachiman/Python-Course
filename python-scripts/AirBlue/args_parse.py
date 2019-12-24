@@ -21,7 +21,7 @@ def valid_city_code(code):
 def valid_date(input_date):
     """
     Check data on correctly input.
-    :param input_date: (str) - data in format YYYY-MM-DD or  DD-MM-YYYY.
+    :param input_date: (str) - data in format YYYY-MM-DD.
     :return: (datetime) - valid datetime object.
     """
     input_date = datetime.date.fromisoformat(input_date)
@@ -42,9 +42,9 @@ def create_arg_parser():
     arg_parser.add_argument('from_city', type=valid_city_code, help='Origin city code: 3 capital letters (e.g. ISB)')
     arg_parser.add_argument('to_city', type=valid_city_code, help='Origin city code: 3 capital letters (e.g. ISB)')
     arg_parser.add_argument('departure_date', type=valid_date, help='Departure date: YYYY-MM-DD'
-                                                                    ' or DD-MM-YYYY (without dropping zeros)')
+                                                                    ' (without dropping zeros)')
     arg_parser.add_argument('return_date', nargs="?", type=valid_date, help='Departure date: YYYY-MM-DD'
-                                                                            ' or DD-MM-YYYY(without dropping zeros)')
+                                                                            '(without dropping zeros)')
 
     # Shows the required arguments if they are not present.
     if len(sys.argv) == 1:
