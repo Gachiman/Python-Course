@@ -26,7 +26,7 @@ def valid_date(input_date):
     """
     try:
         input_date = datetime.date.fromisoformat(input_date)
-    except AttributeError:
+    except ValueError:
         raise argparse.ArgumentError(None, 'Date should be in the following format: YYYY-MM-DD.')
     if input_date < datetime.date.today():
         raise argparse.ArgumentError(None, 'Please select today or a future date for travel.')
