@@ -24,7 +24,10 @@ def valid_date(input_date):
     :param input_date: (str) - data in format YYYY-MM-DD.
     :return: (datetime) - valid datetime object.
     """
-    input_date = datetime.date.fromisoformat(input_date)
+    try:
+        input_date = datetime.date.fromisoformat(input_date)
+    except AttributeError:
+        raise argparse.ArgumentError(None, 'Date should be in the following format: YYYY-MM-DD.')
     if input_date < datetime.date.today():
         raise argparse.ArgumentError(None, 'Please select today or a future date for travel.')
     if input_date > datetime.date.today() + relativedelta(years=1):
@@ -46,7 +49,7 @@ def create_arg_parser():
     arg_parser.add_argument('return_date', nargs="?", type=valid_date, help='Departure date: YYYY-MM-DD'
                                                                             '(without dropping zeros)')
 
-    # Shows the required arguments if they are not present.
+    # Show default help message if the required arguments are not present.
     if len(sys.argv) == 1:
         arg_parser.print_help(sys.stderr)
         sys.exit()
